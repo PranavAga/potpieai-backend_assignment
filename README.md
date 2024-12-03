@@ -1,6 +1,6 @@
 # Pull Request Analysis Tool
 
-A FastAPI-based service for analyzing GitHub pull requests using AI language models. The tool integrates asynchronous task processing with Celery and supports both remote and local model execution.
+A FastAPI-based service for analyzing GitHub pull requests using LLMs (Llama). The tool integrates asynchronous task processing with Celery.
 
 ---
 
@@ -46,7 +46,6 @@ A FastAPI-based service for analyzing GitHub pull requests using AI language mod
     ```bash
     uvicorn main:app --reload
     ``` 
-
 
 ---
 
