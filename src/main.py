@@ -11,7 +11,8 @@ import redis
 import os
 from dotenv import load_dotenv
 from celery import Celery
-import time # Simulating a long-running task
+from pr_analysis import *
+import json
 
 load_dotenv(".env")
 REDIS_URL = os.environ.get('REDIS_URL')
@@ -51,16 +52,15 @@ class AnalyzePRRequest(BaseModel):
 
 # Celery task
 @celery_app.task
-def perform_analysis(task_id: str, code: str, repo_url: str, pr_number: int, github_token: Optional[str]):
+def perform_analysis(task_id: str, code: bytes, repo_url: str, pr_number: int, github_token: Optional[str]):
     print("\nperforming analysis\n")
     redis_client.set(f"{task_id}:status", TaskStatus.IN_PROGRESS.value)
     print(f"\nsetted task : {TaskStatus.IN_PROGRESS.value}\n")
-    try:
-        # Simulating analysis
-        time.sleep(10)
 
-        # Simulated result
-        result = f"Analysis of PR #{pr_number} in repository {repo_url} completed successfully."
+    try:
+        # Generate results
+        result = analyze_pr_diff(code)
+
         redis_client.set(f"{task_id}:result", result)
         redis_client.set(f"{task_id}:status", TaskStatus.COMPLETED.value)
     except Exception as e:
@@ -110,7 +110,7 @@ async def analyze_pr(data: AnalyzePRRequest):
             detail = "Resource not found"
         raise HTTPException(status_code = difference_response.status_code, detail = detail)
 
-    code = difference_response.content.decode("utf-8")
+    code = difference_response.content
 
     # Generating a task_id
     task_id = str(uuid.uuid4())
@@ -134,7 +134,11 @@ async def get_results(task_id: str):
     status = redis_client.get(f"{task_id}:status")
     if not status:
         raise HTTPException(status_code=404, detail="Task not found.")
-    if status != TaskStatus.COMPLETED.value:
+    if status != TaskStatus.COMPLETED.value and status != TaskStatus.FAILED.value:
         raise HTTPException(status_code=400, detail="Results not available. Task is not completed.")
     result = redis_client.get(f"{task_id}:result")
-    return {"task_id": task_id, "results": result}
+    return {
+        "task_id": task_id, 
+        "status": status,
+        "results": json.loads(result)
+    }

@@ -6,20 +6,35 @@ A FastAPI-based service for analyzing GitHub pull requests using AI language mod
 
 ## 🚀 Project Setup
 
-### Prerequisites
+### Requirements
 - Python 3.8+
-- PostgreSQL for task queue management
-- API key for your chosen LLM provider (e.g., OpenAI or Anthropic) if using remote models
+- FastAPI
+- Celery
+- Redis
+- Local running instance of Llama
+- pytest 
 
 ### Running
-1. **Clone the repository**: <!-- TODO -->
+1. **Clone the repository**:
 
    ```bash
    git clone git@github.com:PranavAga/potpieai-backend_assignment.git
-   cd <repo>
+   cd  potpieai-backend_assignment
    ```
 
-2. - **Run the Celery worker (Windows)**
+2. **Install required python packages**
+    ```bash
+    pip install -r src/requirements.txt
+   ```
+  
+2. **Run Llama instance locally**:
+
+   ```bash
+   ollama run llama3.2
+   ```
+
+   Setup the URL in in `src/.env`. Refer to `src/.env.example`.
+3. - **Run the Celery worker (Windows)**
       ```bash
       celery -A main.celery_app worker --loglevel=info --pool=solo
       ``` 
@@ -27,7 +42,7 @@ A FastAPI-based service for analyzing GitHub pull requests using AI language mod
       ```bash
       celery -A main.celery_app worker --loglevel=info
       ``` 
-3. **Run the FastAPI application**: 
+4. **Run the FastAPI application**: 
     ```bash
     uvicorn main:app --reload
     ``` 
@@ -60,7 +75,7 @@ A FastAPI-based service for analyzing GitHub pull requests using AI language mod
   ```json
   {
     "task_id": "unique-task-id",
-    "status": "PENDING|STARTED|SUCCESS|FAILURE"
+    "status": "PENDING|IN_PROGRESS|COMPLETED|FAILED"
   }
   ```
 
@@ -113,25 +128,21 @@ A FastAPI-based service for analyzing GitHub pull requests using AI language mod
 3. **Redis**:
   - Using Redis as the message broker for Celery, along with to store the results
 
-4. **LLM Integration**: <!-- TODO -->
+4. **LLM Integration**: 
+  - Used localy running of Llama 3.2 with Ollama
    
-
-5. **Scalability**: <!-- TODO -->
-
 ---
 
-## 🚀 Future Improvements <!-- TODO: future -->
+## 🚀 Future Improvements
 
 1. **Enhanced Authentication**:
    - Add OAuth integration for secure GitHub API interactions.
 
 2. **WebSocket Support**:
-   - Provide real-time status updates for task progress.
+   - GitHub webhook support.
 
 3. **Frontend Integration**:
    - Build a simple dashboard for visualizing pull request analysis.
-
-5. **Structured logging**:
    
 
 ---
