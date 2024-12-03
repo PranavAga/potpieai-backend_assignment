@@ -11,7 +11,7 @@ A FastAPI-based service for analyzing GitHub pull requests using AI language mod
 - PostgreSQL for task queue management
 - API key for your chosen LLM provider (e.g., OpenAI or Anthropic) if using remote models
 
-### Installation
+### Running
 1. **Clone the repository**: <!-- TODO -->
 
    ```bash
@@ -19,17 +19,25 @@ A FastAPI-based service for analyzing GitHub pull requests using AI language mod
    cd <repo>
    ```
 
-2. **Run the FastAPI application**: <!-- TODO -->
+2. - **Run the Celery worker (Windows)**
+      ```bash
+      celery -A main.celery_app worker --loglevel=info --pool=solo
+      ``` 
+    - **Run the Celery worker (others)**
+      ```bash
+      celery -A main.celery_app worker --loglevel=info
+      ``` 
+3. **Run the FastAPI application**: 
+    ```bash
+    uvicorn main:app --reload
+    ``` 
 
-   ```bash
-   uvicorn app.main:app --reload
-   ``` 
 
 ---
 
-## 📚 API Documentation
+## 📚 APIs
 
-### POST `/analyze-pr`
+1. ### POST `/analyze-pr`
 - **Description**: Initiates analysis of a GitHub pull request.
 - **Input**:
   ```json
@@ -46,7 +54,7 @@ A FastAPI-based service for analyzing GitHub pull requests using AI language mod
   }
   ```
 
-### GET `/status/{task_id}`
+2. ### GET `/status/{task_id}`
 - **Description**: Checks the status of an analysis task.
 - **Response**:
   ```json
@@ -56,7 +64,7 @@ A FastAPI-based service for analyzing GitHub pull requests using AI language mod
   }
   ```
 
-### GET `/results/{task_id}`
+3. ### GET `/results/{task_id}`
 - **Description**: Retrieves the results of a completed analysis.
 - **Response**:
   ```json
@@ -99,11 +107,11 @@ A FastAPI-based service for analyzing GitHub pull requests using AI language mod
 1. **FastAPI for APIs**:
    - Chosen for its asynchronous capabilities and easy-to-use interface.
 
-2. **Celery for Task Queue**: <!-- TODO -->
-   
+2. **Celery for Task Queue**:
+   - Using Celery for async task processing
 
-3. **PostgreSQL**: <!-- TODO -->
-
+3. **Redis**:
+  - Using Redis as the message broker for Celery, along with to store the results
 
 4. **LLM Integration**: <!-- TODO -->
    
@@ -112,7 +120,7 @@ A FastAPI-based service for analyzing GitHub pull requests using AI language mod
 
 ---
 
-## 🚀 Future Improvements <!-- TODO -->
+## 🚀 Future Improvements <!-- TODO: future -->
 
 1. **Enhanced Authentication**:
    - Add OAuth integration for secure GitHub API interactions.
@@ -135,7 +143,11 @@ A FastAPI-based service for analyzing GitHub pull requests using AI language mod
    pip install pytest
    ```
 
-2. **Run tests**:
+2. **Environmet variables**:
+
+   Setup environmet variables in `src/.env`. Refer to `src/.env.example`.
+
+3. **Run tests**:
    ```bash
    pytest
    ```
